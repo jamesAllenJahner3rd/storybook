@@ -1,0 +1,317 @@
+// server.js
+
+// 1. Initialize the Project
+// Run: npm init - setup the package.json and git file.
+
+// 2. Update the package.json
+/*
+  "scripts": {
+    // cross-env helps make a global variable that can be used no matter the operating system.
+    // NODE_ENV=production sets the stage of production like development, testing, and production. allowing you to set settings depending
+    "start": "cross-env NODE_ENV=production node app",
+    "dev": "cross-env NODE_ENV=development nodemon app",
+    "postinstall": "node ./scripts/post-install.js"
+  }
+*/
+
+// 3. Install Dependencies
+// Run: npm i express mongoose connect-mongo express-session ejs dotenv method-override moment morgan passport passport-google-oauth20
+// i is for install. -D flag is shorthand for --save-dev. This flag is used when you want to install a package as a development dependency.
+// Run: npm i -D nodemon cross-env
+
+// 4. Set Up app.js
+const express = require("express");
+const dotenv = require("dotenv");
+
+// Load the config using an object with the key pointing to the .env file for global variables.
+dotenv.config({ path: './config/config.env' });
+
+const app = express();
+
+const PORT = process.env.PORT || 5000;
+
+// NODE_ENV is going to let us know what stage of development we're in when booting.
+app.listen(PORT, console.log(`Server running in ${process.env.NODE_ENV} mode on port ${PORT}`));
+
+// 5. Create a folder config with a file config.env
+/*
+  PORT = 3000
+  MONGO_URI = mongodb+srv://jamesallenjahner3rd:R69kik0RlJBjcdcV@cluster0.dd2j2.mongodb.net/storybook?retryWrites=true&w=majority
+*/
+
+// 6. Create file db.js in the config folder
+/*
+const mongoose = require("mongoose");
+
+const connectDB = async () => {
+    try {
+        // The second arguments are to avoid warnings in the console.
+        const conn = await mongoose.connect(process.env.MONGO_URI);
+        console.log(`MongoDB Connected: ${conn.connection.host}`);
+    } catch (err) {
+        console.error(`Error: ${err}`);
+        process.exit(1); // This exits the promise, 1 means failure
+    }
+};
+
+module.exports = connectDB; // Now we can use it in the app.js file
+*/
+
+// 7. Add to app.js:
+const connectDB = require("./config/db");
+connectDB();
+
+// 8. Now to reveal requests made in the console.
+const morgan = require('morgan');
+
+// This is one of the ways that NODE_ENV can be used to limit when code is applied.
+if (process.env.NODE_ENV === 'development') {
+    app.use(morgan('dev')); // dev shows HTTP method and response
+}
+
+// Set EJS as the view engine so that Express will know how to handle the file.
+app.set('view engine', 'ejs');
+
+// 9. These partial EJS allow us to reuse code for all the webpages.
+/*
+Create the views/partials folders with:
+  footer.ejs
+    <footer>
+        <small>&copy; 2025 My Application</small>
+    </footer>
+
+  and header.ejs:
+    <header>
+        <h1>My Application</h1>
+        <nav>
+          <!-- Navigation links -->
+        </nav>
+    </header> 
+*/
+
+// 10. Now make the routes/index.js file
+// These routes take you to the right controller depending on what's requested.
+/*
+const express = require("express");
+const router = express.Router();
+
+// @desc Login/landing page
+// @route GET /     ? This listens for the '/' and triggers the response
+router.get("/", function (req, res) {
+    res.send("Login");
+});
+
+// @desc Dashboard
+// @route GET /dashboard
+router.get("/dashboard", function (req, res) {
+    res.send("Dashboard");
+});
+
+module.exports = router;
+*/
+
+// 11. Add the routes to the app.js:
+const indexRoutes = require("./routes/index");
+// Routes
+app.use('/', indexRoutes);
+
+// 12. Now create a dashboard.ejs and login.ejs in the view folder including testing:
+/*
+<body>
+    <%- include('partials/header') %>
+    <h1>Dashboard</h1>
+    <a href="/">Link to login</a>
+    <%- include('partials/footer') %>
+</body>
+<body>
+    <%- include('partials/header') %>
+    <h1>Login</h1>
+    <a href="/dashboard">Link to dashboard</a>
+    <%- include('partials/footer') %>
+</body>
+*/
+
+// 13. Update the route index.js:
+/*
+router.get("/", function (req, res) {
+    res.render("login"); // Now will render the EJS files.
+});
+
+router.get("/dashboard", function (req, res) {
+    res.render("dashboard");
+});
+*/
+
+// 14. Time to build up the HTML
+/*
+https://materializecss.com/getting-started.html
+Copy to the EJS files:
+ <!-- Compiled and minified CSS -->
+ <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/css/materialize.min.css">
+
+ <!-- Compiled and minified JavaScript -->
+ <script src="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/js/materialize.min.js"></script>
+
+https://cdnjs.com/libraries/font-awesome
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css" integrity="sha512-Evv84Mr4kqVGRNSgIGL/F/aIDqQb7xQ2vcrdIwxfjThSH8CSR7PBEakCr51Ck+w+/U6swU2Im1vVX0SVk9ABhg==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+*/
+
+// 15. Create a public folder for static files: CSS, JS
+/*
+Add this to app.js:
+const path = require("path");
+// Static folder
+app.use(express.static(path.join(__dirname, "public"))); // __dirname stands for the current directory.
+*/
+
+// 16. Add file public/css/style.css
+/*test it with body{background: black}
+/* Add your custom styles here */
+*/
+
+// 17. Add file public/js/main.js
+/*
+/* Add your custom JavaScript here */
+*/
+
+// 18. Then add references to the EJS files (login.ejs & dashboard.ejs):
+/*
+<link rel="stylesheet" href="css/style.css">
+<script type="text/javascript" src='js/main.js'></script>
+*/
+<!-- add div and card to the login.ejs -->
+<div class="container login-container">
+    <div class="card">
+        <div class="card-content">
+            <h1>Login</h1>
+            <a href="/dashboard">link to dashboard</a>
+        </div>
+
+    </div>
+</div>
+<!-- then add to the main.css -->
+p{
+    margin-top: 10px 0 !important;
+    /* !important is to override the materialize */
+}
+.login-container{
+    width:400px ;
+    margin-top: 50px;
+    text-align:center;
+}
+<!-- create a head in login.ejs 32:10 -->
+<h3><i class='fas fa-book-reader'></i> StoryBooks</h3>
+<!-- add a Description -->
+<div class="section">
+    <!-- a note is that 'section' is a materialized container -->
+    <p class="lead"> Create public and private stories from your life</p>
+</div>
+<!-- divider is a materialize that adds a line -->
+<div class="divider"></div>
+<!-- now we that the button  that doesn't work yet -->
+<div class="section">
+    <a href="/auth/google" class="btn red darken-1">
+        <i class="fab fa-google left"></i>Log In With Google
+    </a>
+</div>
+
+<!-- time to make an api key and secret -->
+https://console.cloud.google.com/
+login and make a Project
+under apis and service  find google+ api and enable it
+manage  > credentials
+ create credentials> Create OAuth client ID
+    
+Application type: web app
+Authorized redirect URIs: http://localhost:3000/auth/google/callback
+<!-- this will change when deployed  ONLINE-->
+    A WINDOW POPS UP WITH A client ID and a client secret
+    copy into the config.env file
+    GOOGLE_CLIENT_ID = 000000000000-0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a00.apps.googleusercontent.com
+    GOOGLE_CLIENT_SECRET = AAAAAA-oaoaoaoaoaoaooaoaoaoaoaoaoao
+<!-- add file /config/passport.js-->
+ <!-- add to app.js file -->
+const passport = require("passport");
+//Passport config
+require("./config/passport")(passport)//i'm passing variable passport as an arguement
+
+//Passport middleware
+app.use(passport.initialize);
+app.use(passport.session);
+
+const session = require("express-session");
+
+//https://www.npmjs.com/package/express-session
+//Express-session middleware
+app.use(session({
+    secret: 'keyboard cat',
+    resave: false,// don't save a session if nothing is modified
+    saveUninitialized: false,// don't create a session untill  something is stored
+    cookie: { secure: true }
+  }))
+
+  <!-- config/passport.js -->
+   copy from https://www.passportjs.org/packages/passport-google-oauth20/
+
+   const GoogleStrategy = require('passport-google-oauth20').Strategy;
+
+    const mongoose = require("mongoose");
+    <!-- create .models/User.js -->
+    const   mongoose = require("mongoose")
+
+    const UserSchema = new mongoose.Schema({
+        googleId:{
+            type: String,
+            required: true
+        },
+        displayName:{
+            type: String,
+            required: true
+        },
+         firstName:{
+            type: String,
+            required: true
+        },
+         lastName:{
+            type: String,
+            required: true
+        },
+         image:{
+            type: String
+            <!-- not required -->
+        },
+        createdAt:{
+            type: Date,
+            default:Date.now() 
+            <!-- automatical input date/time -->
+        }
+    })
+    module.exports = mongoose.model("User", UserSchema)// i want to export this as a model. User will be the model name and UserSchema made above will be passed in.
+    <!-- in /config/passport -->
+     add :
+     const User = require("../model/User.js")
+     module.exports = function(passport){// this was passed in from the app.js
+        passport.use(new GoogleStrategy({
+            clientID: process.env.GOOGLE_CLIENT_ID,
+            clientSecret: process.env.GOOGLE_CLIENT_SECRET,
+            callbackURL:"/auth/google/callback"
+    
+        },
+        async(accessToken, RefreshToken, profile,done)=>{
+            // done is the callback we call for the we need to  finish.
+            console.log("profile");
+                }))
+                // these are used to turn the profile info in to a simpler form to send and retrieve the info
+                passport.serializeUser(function(user, done) {
+                      done(null, user.id);
+                      // calling the callback and pass in the user.id
+            
+                });
+            
+                passport.deserializeUser(function(user, done) {
+                    User.findById(id,function(err,user) {
+                      done(err, user);
+                    });
+                });
+            }
+            <!--  create the file /routes/auth.js -->
