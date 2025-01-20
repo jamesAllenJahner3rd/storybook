@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="mobile-web-app-capable" content="yes">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/css/materialize.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css"
+        integrity="sha512-Evv84Mr4kqVGRNSgIGL/F/aIDqQb7xQ2vcrdIwxfjThSH8CSR7PBEakCr51Ck+w+/U6swU2Im1vVX0SVk9ABhg=="
+        crossorigin="anonymous" referrerpolicy="no-referrer" />
+    <link rel="stylesheet" href="css/style.css">
+
+    <title>Inventory Api</title>
+</head>
+
+<body>
+    <%- include('partials/header') %>
+        <div class="container login-container">
+            <div class="card">
+                <div class="card-content">
+                    <!-- <h1>Login</h1>
+                    <a href="/dashboard">link to dashboard</a> -->
+                    <h3><i class='fas fa-book-reader'></i> StoryBooks</h3>
+                    <div class="section">
+                        <!-- a note is that section is a materialized container -->
+                        <p class="lead"> Create public and private stories from your life</p>
+                    </div>
+                    <div class="divider"></div>
+                    <div class="section">
+                        <a href="/auth/google" class="btn red darken-1">
+                            <i class="fab fa-google left"></i>Log In With Google
+                        </a>
+                    </div>
+                </div>
+            </div>
+
+            <%- include('partials/footer') %>
+                <script src="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/js/materialize.min.js"></script>
+                <script type="text/javascript" src='js/main.js'></script>
+</body>
+
+</html>
