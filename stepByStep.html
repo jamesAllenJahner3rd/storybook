@@ -321,7 +321,7 @@ app.use(session({
 
             //@desc Auth with Google
             //@router GET /auth/google     ?this listens for the '/' tand triggers the response
-            router.get("/google", passport.authenticate("google", { scope: ['profile'] } ));//strategy, then asking for profile data
+            router.get("/google", passport.authenticate("google", { scope: [profile] } ));//strategy, then asking for profile data
 
             //@desc Google auth callback
             //@router GET /auth/google/callback
@@ -331,3 +331,28 @@ app.use(session({
             }); // but if it passes go to the dashboard
             // an object specifying a failure redirect.
             module.exports = router;
+            <!-- now that the test worked -->
+             <!-- in the passort.js add: -->
+             async(accessToken, RefreshToken, profile,done)=>{
+                // done is the callback we call for the we need to  finish.
+                              const newUser = {
+                                    googleId: profile.id,
+                                    displayName: profile.displayName,
+                                    firstName: profile.name.givenName,
+                                    lastName: profile.name.familyName,
+                                    image: profile.photos[0].value
+                                }
+                                try{// search for an existing id
+                                    let user = await User.findOne({ googleId: profile.id })
+                                    if (user) {
+                                        done(null,user)//done  signals the comepletion. null make no errors. user iswhat was found
+                                    }else{
+                                        user = await User.create(newUser)
+                                        done(null,user)
+                                    }
+                                } catch(err){
+                                    console.error(`Error  ${err}`)
+                                }
+                            }
+                        )
+                    )

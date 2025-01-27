@@ -22,7 +22,27 @@ module.exports = function(passport){// this was passed in from the app.js
             },
             async(accessToken, RefreshToken, profile,done)=>{
 // done is the callback we call for the we need to  finish.
-                console.log(profile);
+              const newUser = {
+                    googleId: profile.id,
+                    displayName: profile.displayName,
+                    firstName: profile.name.givenName,
+                    lastName: profile.name.familyName,
+                    image: profile.photos[0].value
+                }
+                // search for an existing id
+                try{
+                    let user = await User.findOne({ googleId: profile.id })
+                    // return user 
+                    if (user) {
+                        done(null,user)
+                        // or create user
+                    }else{
+                        user = await User.create(newUser)
+                        done(null,user)
+                    }
+                } catch(err){// 
+                    console.error(`Error  ${err}`)
+                }
             }
         )
     )
