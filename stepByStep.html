@@ -236,8 +236,8 @@ const passport = require("passport");
 require("./config/passport")(passport)//i'm passing variable passport as an arguement
 
 //Passport middleware
-app.use(passport.initialize);
-app.use(passport.session);
+app.use(passport.initialize());
+app.use(passport.session());
 
 const session = require("express-session");
 
@@ -318,7 +318,7 @@ app.use(session({
             const express = require("express");
             const router = express.Router();
             const passport = require("passport");
-            
+
             //@desc Auth with Google
             //@router GET /auth/google     ?this listens for the '/' tand triggers the response
             router.get("/google", passport.authenticate("google", { scope: ['profile'] } ));//strategy, then asking for profile data

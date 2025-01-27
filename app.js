@@ -4,6 +4,8 @@ const morgan = require('morgan')
 const connectDB = require("./config/db");
 const ejs =require("ejs");
 const indexRoutes = require("./routes/index");
+
+const authRoutes = require("./routes/auth");
 const path = require("path");
 const passport = require("passport");
 const session = require("express-session");
@@ -31,13 +33,14 @@ app.use(session({
     cookie: { secure: true }
   }))
 //Passport middleware
-app.use(passport.initialize);
-app.use(passport.session);
+app.use(passport.initialize());
+app.use(passport.session());
 //static folder
 app.use(express.static(path.join(__dirname,"public")));
 
 //Routes
 app.use('/',indexRoutes)
+app.use('/auth',authRoutes)
 
 const PORT = process.env.PORT || 5000;
 //NODE_ENV is going to let us know what stage of development we're in when booting.
