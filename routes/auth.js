@@ -5,10 +5,11 @@ const passport = require("passport");
 //@router GET /auth/google     ?this listens for the '/' tand triggers the response
 router.get("/google", passport.authenticate("google", { scope: ['profile'] } ));//strategy, then asking for profile data
 
-//@desc Dashboard
-//@router GET /dashboard
-router.get("/dashboard", function(req,res){
-    res.render("dashboard");
-})
-
+//@desc Google auth callback
+//@router GET /auth/google/callback
+router.get("/google/callback", passport.authenticate("google",{failureRedirect: "/"}), //if it fails go to  root
+(req,res) =>{
+    res.redirect("/dashboard");
+}); // but if it passes go to the dashboard
+// an object specifying a failure redirect.
 module.exports = router;
