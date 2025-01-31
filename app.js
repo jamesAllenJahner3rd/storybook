@@ -43,5 +43,5 @@ app.use('/',indexRoutes)
 app.use('/auth',authRoutes)
 
 const PORT = process.env.PORT || 5000;
-//NODE_ENV is going to let us know what stage of development we're in when booting.
+//NODE_ENV is going to let us know what stage of development we're in when booting.,
 app.listen(PORT, console.log(`Server running in ${process.env.NODE_ENV} mode on port ${PORT}`));
