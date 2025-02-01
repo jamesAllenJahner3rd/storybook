@@ -289,7 +289,7 @@ app.use(session({
     module.exports = mongoose.model("User", UserSchema)// i want to export this as a model. User will be the model name and UserSchema made above will be passed in.
     <!-- in /config/passport -->
      add :
-     const User = require("../model/User.js")
+     const User = require("../model/User")
      module.exports = function(passport){// this was passed in from the app.js
         passport.use(new GoogleStrategy({
             clientID: process.env.GOOGLE_CLIENT_ID,
@@ -308,10 +308,18 @@ app.use(session({
             
                 });
             
-                passport.deserializeUser(function(user, done) {
+                <!-- <s>passport.deserializeUser(function(id, done) {// the findById  cann't do callbacks anymore
                     User.findById(id,function(err,user) {
                       done(err, user);
                     });
+                });</s> -->
+                passport.deserializeUser(async (id, done) => {
+                    try {
+                        const user = await User.findById(id);
+                        done(null, user);
+                    } catch (err) {
+                        done(err, null);
+                    }
                 });
             }
             <!--  create the file /routes/auth.js -->
@@ -356,3 +364,95 @@ app.use(session({
                             }
                         )
                     )
+                    <!-- Logout -->
+<!-- add to auth.js -->
+//@desc Logout user
+//@route /auth/logout
+router.get("/logout", (req, res) => {
+    req.logout();// logout method on the req object
+    res.redirect("/");
+})
+<!-- update partial header.ejs with: -->
+<header>
+    <h1>My Application</h1>
+    <nav class="grey darken-3">
+      <div class="nav-wrapper container">
+  
+          <a href="#!" class="brand-logo center">StoryBooks</a>
+          <a href="#" data-target="mobile-demo" class="sidenav-trigger show-on-large"><i class="fas fa-bars"></i></a>
+          <ul class="sidenav" id="mobile-demo">
+              <li><a href="/stories">Public Stories</a></li>
+              <li><a href="/dashboard">Dashboard</a></li>
+              <li><a href="/auth/logout">Logout</a></li>
+          </ul>
+      </div>
+  </nav>
+  </header>
+  <!-- auth.js file now needs a logout route -->
+  //@desc Logout user
+  //@route /auth/logout
+  router.get("/logout", (req, res,next) => {
+      req.logout(err=> {
+          if (err) {return next(error)}
+           res.redirect("/")
+      })
+     
+  })
+  <!-- to get the sidebar (header)to work add this to each page  -->
+  <script> 
+    M.Sidenav.init(document.querySelector('.sidenav'))
+    </script>
+    <!-- but right now i can still get to pages if i'm logged out. -->
+     <!-- also i don't want to go to the login page when i'm logged in
+       -->
+     <!-- make file middleware/auth.js; 'next is the funct you use to call the next peice of middleware or move on' -->
+     module.exports = {
+        ensureAuth: function(req, res, next) {
+            if (req.isAuthenticated()){
+                return next()
+            } else{
+                res.redirect("/")
+            }
+        },
+    <!-- next make it so logined in pep's can't see login page -->
+        ensureGuest: function (req, res, next) {
+            if (req.isAuthenticated()){
+                return.redirect("/dashboard")
+            }else {
+                res.redirect("/dashboard")
+            }
+        }
+    }
+    <!-- using destructuring  require these in the routes/index.js -->
+    const{ensureAuth, ensureGuest}
+    = require('../middlewareauth')
+    <!-- add these to the routes now -->
+    
+    router.get("/", ensureGuest,function(req,res){
+        res.render("login");
+    })
+    router.get("/dashboard", ensureAuth,function(req,res){
+        res.render("dashboard");
+    })
+<!-- problem session does seem to be saving to the db-->
+ <!-- go to app.js  and add -->
+  
+const MongoStore = require('connect-mongo')(session);
+const mongoose = require("mongoose");
+
+//Express-session middleware
+app.use(session({
+    secret: 'keyboard cat',
+    resave: false,
+    saveUninitialized: true,
+    cookie: { secure: true }<!--add this>>>>-->,
+    store: new MongoStore({ mongooseConnection: mongoose.connection})<!--<<<<<add this-->
+  }))
+  app.use(
+    session({
+      secret: 'keyboard cat',
+      resave: false,
+      saveUninitialized: false,
+      store: MongoStore.create({mongoUrl: process.env.MONGO_URI,}),
+    })
+  )
