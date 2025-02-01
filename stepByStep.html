@@ -341,30 +341,30 @@ app.use(session({
             module.exports = router;
             <!-- now that the test worked -->
              <!-- in the passort.js add: -->
-             async(accessToken, RefreshToken, profile,done)=>{
-                // done is the callback we call for the we need to  finish.
-                              const newUser = {
-                                    googleId: profile.id,
-                                    displayName: profile.displayName,
-                                    firstName: profile.name.givenName,
-                                    lastName: profile.name.familyName,
-                                    image: profile.photos[0].value
-                                }
-                                try{// search for an existing id
-                                    let user = await User.findOne({ googleId: profile.id })
-                                    if (user) {
-                                        done(null,user)//done  signals the comepletion. null make no errors. user iswhat was found
-                                    }else{
-                                        user = await User.create(newUser)
-                                        done(null,user)
-                                    }
-                                } catch(err){
-                                    console.error(`Error  ${err}`)
-                                }
-                            }
-                        )
-                    )
-                    <!-- Logout -->
+async(accessToken, RefreshToken, profile,done)=>{
+   // done is the callback we call for the we need to  finish.
+                 const newUser = {
+                       googleId: profile.id,
+                       displayName: profile.displayName,
+                       firstName: profile.name.givenName,
+                       lastName: profile.name.familyName,
+                       image: profile.photos[0].value
+                   }
+                   try{// search for an existing id
+                       let user = await User.findOne({ googleId: profile.id })
+                       if (user) {
+                           done(null,user)//done  signals the comepletion. null make no errors. user iswhat was found
+                       }else{
+                           user = await User.create(newUser)
+                           done(null,user)
+                       }
+                   } catch(err){
+                       console.error(`Error  ${err}`)
+                   }
+               }
+           )
+       )
+       <!-- Logout -->
 <!-- add to auth.js -->
 //@desc Logout user
 //@route /auth/logout
@@ -415,17 +415,18 @@ router.get("/logout", (req, res) => {
             }
         },
     <!-- next make it so logined in pep's can't see login page -->
-        ensureGuest: function (req, res, next) {
-            if (req.isAuthenticated()){
-                return.redirect("/dashboard")
-            }else {
-                res.redirect("/dashboard")
-            }
+    ensureGuest: function (req, res, next) {
+        if (req.isAuthenticated()){
+            res.redirect("/dashboard")
+        }else {
+            return next()
         }
     }
+}
+
+
     <!-- using destructuring  require these in the routes/index.js -->
-    const{ensureAuth, ensureGuest}
-    = require('../middlewareauth')
+    const{ensureAuth, ensureGuest} = require('../middlewareauth')
     <!-- add these to the routes now -->
     
     router.get("/", ensureGuest,function(req,res){
@@ -437,17 +438,18 @@ router.get("/logout", (req, res) => {
 <!-- problem session does seem to be saving to the db-->
  <!-- go to app.js  and add -->
   
-const MongoStore = require('connect-mongo')(session);
+const MongoStore = require('connect-mongo')<!--(session); is old.-->
 const mongoose = require("mongoose");
 
 //Express-session middleware
-app.use(session({
+<!-- app.use(session({
     secret: 'keyboard cat',
     resave: false,
     saveUninitialized: true,
-    cookie: { secure: true }<!--add this>>>>-->,
-    store: new MongoStore({ mongooseConnection: mongoose.connection})<!--<<<<<add this-->
-  }))
+    cookie: { secure: true }<!--srike-->,
+    store: new MongoStore({ mongooseConnection: mongoose.connection})<!--/strike-->
+  })) -->
+  <!-- that has been updated. -->
   app.use(
     session({
       secret: 'keyboard cat',
